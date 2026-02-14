@@ -75,7 +75,7 @@ async fn main() {
                 eprintln!("Error: {}", e);
                 process::exit(1);
             });
-        let are_all_owners_legit = nft_utils::check_are_all_owners_legit(nft_owners, nft_address)
+        let are_all_owners_legit = nft_utils::check_are_all_owners_legit(&nft_owners, nft_address)
             .await
             .unwrap_or_else(|e| {
                 eprintln!("Error: {}", e);

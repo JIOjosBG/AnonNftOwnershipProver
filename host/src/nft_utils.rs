@@ -1,6 +1,8 @@
 use ethers::types::Address;
 
 use ethers::prelude::*;
+use rand::Rng;
+use std::str::FromStr;
 use std::sync::Arc;
 
 abigen!(
@@ -60,7 +62,7 @@ pub async fn fetch_nft_owners(nft_address: Address) -> Result<Vec<Address>, Stri
 }
 
 pub async fn check_are_all_owners_legit(
-    nft_owners: Vec<Address>,
+    nft_owners: &Vec<Address>,
     nft_address: Address,
 ) -> Result<bool, String> {
     // Setup provider
@@ -71,7 +73,7 @@ pub async fn check_are_all_owners_legit(
     // Create contract instance
     let contract = IERC721Enumerable::new(nft_address, client);
 
-    for &owner in &nft_owners {
+    for &owner in nft_owners {
         // Get token ID at index
         let balance: U256 = contract
             .balance_of(owner)
@@ -84,4 +86,44 @@ pub async fn check_are_all_owners_legit(
     }
 
     Ok(true)
+}
+
+#[cfg(test)]
+mod tests {
+    use ethers::abi::AbiDecode;
+
+    use super::*; // import parent module
+    #[tokio::test]
+    async fn test_fetch_nft_owners() {
+        let nft_address = Address::from_str("0x3Bd57Bf93dE179d2e47e86319F144d7482503C7d").unwrap();
+
+        let fetched_nft_owners = fetch_nft_owners(nft_address).await.unwrap();
+
+        assert_eq!(fetched_nft_owners.len(), 26);
+        assert_eq!(
+            fetched_nft_owners[0],
+            Address::from_str("0x6969174fd72466430a46e18234d0b530c9fd5f49").unwrap(),
+        );
+    }
+    #[tokio::test]
+    async fn test_check_if_owners_are_legit() {
+        let nft_address = Address::from_str("0x3Bd57Bf93dE179d2e47e86319F144d7482503C7d").unwrap();
+        let mut fetched_nft_owners = fetch_nft_owners(nft_address).await.unwrap();
+
+        assert_eq!(
+            check_are_all_owners_legit(&fetched_nft_owners, nft_address)
+                .await
+                .unwrap(),
+            true
+        );
+
+        let random_addr = Address::from(rand::thread_rng().gen::<[u8; 20]>());
+        fetched_nft_owners.insert(0, random_addr);
+        assert_eq!(
+            check_are_all_owners_legit(&fetched_nft_owners, nft_address)
+                .await
+                .unwrap(),
+            false
+        );
+    }
 }
