@@ -10,3 +10,4 @@ tracing-subscriber = { version = "0.3", features = ["env-filter"] }
 serde = "1.0"
 ethers = "2.0.14"
 tokio = { version = "1.49.0", features = ["macros", "rt-multi-thread"] }
+base64 = "0.22.1"
