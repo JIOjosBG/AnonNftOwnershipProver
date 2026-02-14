@@ -1,7 +1,6 @@
 use ethers::types::Address;
 
 use ethers::prelude::*;
-use rand::Rng;
 use std::str::FromStr;
 use std::sync::Arc;
 
@@ -92,7 +91,7 @@ pub async fn check_are_all_owners_legit(
 mod tests {
     use ethers::abi::AbiDecode;
 
-    use super::*; // import parent module
+    use super::*;
     #[tokio::test]
     async fn test_fetch_nft_owners() {
         let nft_address = Address::from_str("0x3Bd57Bf93dE179d2e47e86319F144d7482503C7d").unwrap();
@@ -117,7 +116,7 @@ mod tests {
             true
         );
 
-        let random_addr = Address::from(rand::thread_rng().gen::<[u8; 20]>());
+        let random_addr = Address::from(::rand::random::<[u8; 20]>());
         fetched_nft_owners.insert(0, random_addr);
         assert_eq!(
             check_are_all_owners_legit(&fetched_nft_owners, nft_address)

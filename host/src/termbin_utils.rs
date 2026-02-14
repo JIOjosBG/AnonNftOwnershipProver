@@ -69,3 +69,34 @@ pub async fn get_receipt_from_termbin(termbin_url: String) -> Result<Receipt, St
 
     Ok(receipt)
 }
+#[cfg(test)]
+mod tests {
+    use ethers::types::Address;
+
+    use super::*;
+    use methods::ANON_HOLDER_GUEST_ID;
+
+    #[tokio::test]
+    async fn test_get_receipt_from_termbin_with_valid_url() {
+        let termbin_url = "https://termbin.com/uaeo".to_string();
+
+        let result = get_receipt_from_termbin(termbin_url).await;
+
+        assert!(
+            result.is_ok(),
+            "Should successfully fetch and decode receipt"
+        );
+        let receipt = result.unwrap();
+
+        // Verify the receipt can be verified and data extracted
+        let (nft_owners, _nft_address): (Vec<Address>, Address) = receipt.journal.decode().unwrap();
+        receipt
+            .verify(ANON_HOLDER_GUEST_ID)
+            .expect("Receipt verification failed");
+
+        assert!(
+            nft_owners.len() == 26,
+            "Receipt should be valid and verifiable"
+        );
+    }
+}
