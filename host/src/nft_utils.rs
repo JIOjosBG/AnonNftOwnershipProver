@@ -1,6 +1,8 @@
 use ethers::types::Address;
 
 use ethers::prelude::*;
+
+#[allow(unused_imports)]
 use std::str::FromStr;
 use std::sync::Arc;
 
@@ -90,6 +92,7 @@ pub async fn check_are_all_owners_legit(
 
 #[cfg(test)]
 mod tests {
+    #[allow(unused_imports)]
     use ethers::abi::AbiDecode;
 
     use super::*;

@@ -4,7 +4,6 @@ use ethers::{
 };
 use methods::{ANON_HOLDER_GUEST_ELF, ANON_HOLDER_GUEST_ID};
 use risc0_zkvm::{default_prover, serde::to_vec, ExecutorEnv, Receipt};
-use tracing_subscriber::fmt;
 
 pub fn generate_proof(
     nft_address: Address,
