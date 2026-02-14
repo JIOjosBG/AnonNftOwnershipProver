@@ -8,10 +8,6 @@ mod nft_utils;
 mod termbin_utils;
 mod zk_utils;
 
-// @TODO better expain errors here
-// @TODO write tests for all utils
-// @TODO finish console logs
-// @TODO handle all unwraps better
 #[tokio::main]
 async fn main() {
     let args: Vec<String> = env::args().collect();
@@ -49,7 +45,7 @@ async fn main() {
                 process::exit(1);
             });
 
-        println!("{:?}", termbin_link);
+        println!("Receipt can be found at: {}", termbin_link);
     } else if args[1] == "verifier" {
         let termbin_url = cli_input::get_termbin_url().unwrap_or_else(|e| {
             eprintln!("Error: {}", e);
@@ -73,6 +69,10 @@ async fn main() {
                 eprintln!("Error: {}", e);
                 process::exit(1);
             });
-        println!("{:?}", are_all_owners_legit);
+        if are_all_owners_legit {
+            println!("Success: User is owner  of the NFT");
+        } else {
+            println!("Verification process failed: user might not be owner");
+        }
     }
 }

@@ -19,14 +19,11 @@ pub fn generate_proof(
     //     .init();
 
     let message = format!("Confirm ownership of {}", to_checksum(&nft_address, None));
-    println!("Message: {}", message);
 
     let message_hash = hash_message(&message);
 
     let recovered = signature.recover(message_hash).map_err(|e| e.to_string())?;
-    println!("Recovered {}", recovered);
-    println!("{:?}", nft_owners);
-    println!("{:?}", nft_owners.contains(&recovered));
+    println!("Recovered signer: {}", recovered);
 
     let env = ExecutorEnv::builder()
         .write(&message_hash)
@@ -53,13 +50,15 @@ pub fn generate_proof(
 
     let receipt_bytes = to_vec(&receipt).map_err(|e| e.to_string())?;
 
-    println!("Receipt size: {} bytes", receipt_bytes.len());
+    println!(
+        "Generated a receipt with size: {} bytes",
+        receipt_bytes.len()
+    );
 
     // let _owners: Vec<Address> = receipt.journal.decode().unwrap();
     // The receipt was verified at the end of proving, but the below code is an
     // example of how someone else could verify this receipt.
     // receipt.verify(ANON_HOLDER_GUEST_ID).unwrap();
-
     return Ok(receipt);
 }
 
@@ -69,7 +68,7 @@ pub fn verify_and_extract_data(receipt: &Receipt) -> Result<(Vec<Address>, Addre
     receipt
         .verify(ANON_HOLDER_GUEST_ID)
         .map_err(|e| format!("Receipt verification failed: {}", e.to_string()))?;
-
+    println!("Receipt is valid");
     return Ok((nft_owners, nft_address));
 }
 

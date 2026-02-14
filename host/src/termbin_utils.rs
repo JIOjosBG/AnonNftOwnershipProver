@@ -15,7 +15,7 @@ pub async fn upload_receipt_to_termbin(receipt: &Receipt) -> Result<String, Stri
         .collect();
 
     let receipt_base64 = general_purpose::STANDARD.encode(&receipt_bytes);
-
+    println!("Uploading receipt to termbin");
     let mut stream = TcpStream::connect("termbin.com:9999")
         .await
         .map_err(|e| format!("Failed to connect to termbin.com: {}", e))?;
@@ -45,6 +45,7 @@ pub async fn upload_receipt_to_termbin(receipt: &Receipt) -> Result<String, Stri
 }
 
 pub async fn get_receipt_from_termbin(termbin_url: String) -> Result<Receipt, String> {
+    println!("Fetching receipt from termbin");
     let response = reqwest::get(termbin_url)
         .await
         .map_err(|e| format!("Failed to fetch URL: {}", e))?;
@@ -66,7 +67,7 @@ pub async fn get_receipt_from_termbin(termbin_url: String) -> Result<Receipt, St
     // Deserialize to Receipt
     let receipt =
         from_slice(&words).map_err(|e| format!("Failed to deserialize receipt: {}", e))?;
-
+    println!("Succefully fetched receipt from termbin");
     Ok(receipt)
 }
 #[cfg(test)]

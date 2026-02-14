@@ -31,6 +31,7 @@ pub async fn fetch_nft_owners(nft_address: Address) -> Result<Vec<Address>, Stri
         .map_err(|e| format!("Failed to get total supply: {}", e))?;
 
     println!("Total supply: {}", total_supply);
+    println!("Now fetching owners...");
 
     // Fetch all owners
     let mut owners = Vec::new();
