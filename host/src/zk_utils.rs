@@ -23,22 +23,22 @@ pub fn generate_proof(
 
     let message_hash = hash_message(&message);
 
-    let recovered = signature.recover(message_hash).unwrap();
+    let recovered = signature.recover(message_hash).map_err(|e| e.to_string())?;
     println!("Recovered {}", recovered);
     println!("{:?}", nft_owners);
     println!("{:?}", nft_owners.contains(&recovered));
 
     let env = ExecutorEnv::builder()
         .write(&message_hash)
-        .unwrap()
+        .map_err(|e| e.to_string())?
         .write(&signature)
-        .unwrap()
+        .map_err(|e| e.to_string())?
         .write(&nft_owners)
-        .unwrap()
+        .map_err(|e| e.to_string())?
         .write(&nft_address)
-        .unwrap()
+        .map_err(|e| e.to_string())?
         .build()
-        .unwrap();
+        .map_err(|e| e.to_string())?;
 
     let prover = default_prover();
 
@@ -51,7 +51,8 @@ pub fn generate_proof(
     // extract the receipt.
     let receipt = prove_info.receipt;
 
-    let receipt_bytes = to_vec(&receipt).unwrap();
+    let receipt_bytes = to_vec(&receipt).map_err(|e| e.to_string())?;
+
     println!("Receipt size: {} bytes", receipt_bytes.len());
 
     // let _owners: Vec<Address> = receipt.journal.decode().unwrap();
@@ -63,7 +64,8 @@ pub fn generate_proof(
 }
 
 pub fn verify_and_extract_data(receipt: &Receipt) -> Result<(Vec<Address>, Address), String> {
-    let (nft_owners, nft_address): (Vec<Address>, Address) = receipt.journal.decode().unwrap();
+    let (nft_owners, nft_address): (Vec<Address>, Address) =
+        receipt.journal.decode().map_err(|e| e.to_string())?;
     receipt
         .verify(ANON_HOLDER_GUEST_ID)
         .map_err(|e| format!("Receipt verification failed: {}", e.to_string()))?;
