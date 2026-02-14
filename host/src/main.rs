@@ -35,17 +35,17 @@ async fn main() {
         process::exit(1);
     }
     if args[1] == "prover" {
-        let (address, signature) = cli_input::prover_inputs().unwrap_or_else(|e| {
+        let (nft_address, signature) = cli_input::prover_inputs().unwrap_or_else(|e| {
             eprintln!("Error: {}", e);
             process::exit(1);
         });
-        let nft_owners = nft_utils::fetch_nft_owners(address)
+        let nft_owners = nft_utils::fetch_nft_owners(nft_address)
             .await
             .unwrap_or_else(|e| {
                 eprintln!("Error: {}", e);
                 process::exit(1);
             });
-        let receipt: Receipt = zk_utils::generate_proof(address, signature, nft_owners)
+        let receipt: Receipt = zk_utils::generate_proof(nft_address, signature, nft_owners)
             .unwrap_or_else(|e| {
                 eprintln!("Error: {}", e);
                 process::exit(1);
@@ -58,5 +58,29 @@ async fn main() {
             });
 
         println!("{:?}", termbin_link);
+    } else if args[1] == "verifier" {
+        let termbin_url = cli_input::get_termbin_url().unwrap_or_else(|e| {
+            eprintln!("Error: {}", e);
+            process::exit(1);
+        });
+
+        let receipt: Receipt = termbin_utils::get_receipt_from_termbin(termbin_url)
+            .await
+            .unwrap_or_else(|e| {
+                eprintln!("Error: {}", e);
+                process::exit(1);
+            });
+        let (nft_owners, nft_address) =
+            zk_utils::verify_and_extract_data(&receipt).unwrap_or_else(|e| {
+                eprintln!("Error: {}", e);
+                process::exit(1);
+            });
+        let are_all_owners_legit = nft_utils::check_are_all_owners_legit(nft_owners, nft_address)
+            .await
+            .unwrap_or_else(|e| {
+                eprintln!("Error: {}", e);
+                process::exit(1);
+            });
+        println!("{:?}", are_all_owners_legit);
     }
 }

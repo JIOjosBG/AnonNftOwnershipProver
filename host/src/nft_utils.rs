@@ -8,6 +8,7 @@ abigen!(
     r#"[
         function totalSupply() external view returns (uint256)
         function tokenByIndex(uint256 index) external view returns (uint256)
+        function balanceOf(address owner) external view returns (uint256)
         function ownerOf(uint256 tokenId) external view returns (address)
     ]"#
 );
@@ -56,4 +57,31 @@ pub async fn fetch_nft_owners(nft_address: Address) -> Result<Vec<Address>, Stri
     }
 
     Ok(owners)
+}
+
+pub async fn check_are_all_owners_legit(
+    nft_owners: Vec<Address>,
+    nft_address: Address,
+) -> Result<bool, String> {
+    // Setup provider
+    let provider = Provider::<Http>::try_from("https://invictus.ambire.com/optimism")
+        .map_err(|e| format!("Failed to create provider: {}", e))?;
+    let client = Arc::new(provider);
+
+    // Create contract instance
+    let contract = IERC721Enumerable::new(nft_address, client);
+
+    for &owner in &nft_owners {
+        // Get token ID at index
+        let balance: U256 = contract
+            .balance_of(owner)
+            .call()
+            .await
+            .map_err(|e| format!("Failed to get if {} has balance: {}", owner, e))?;
+        if balance == U256::from(0) {
+            return Ok(false);
+        }
+    }
+
+    Ok(true)
 }

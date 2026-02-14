@@ -34,6 +34,8 @@ pub fn generate_proof(
         .unwrap()
         .write(&nft_owners)
         .unwrap()
+        .write(&nft_address)
+        .unwrap()
         .build()
         .unwrap();
 
@@ -55,4 +57,13 @@ pub fn generate_proof(
     // receipt.verify(ANON_HOLDER_GUEST_ID).unwrap();
 
     return Ok(receipt);
+}
+
+pub fn verify_and_extract_data(receipt: &Receipt) -> Result<(Vec<Address>, Address), String> {
+    let (nft_owners, nft_address): (Vec<Address>, Address) = receipt.journal.decode().unwrap();
+    receipt
+        .verify(ANON_HOLDER_GUEST_ID)
+        .map_err(|e| format!("Receipt verification failed: {}", e.to_string()))?;
+
+    return Ok((nft_owners, nft_address));
 }

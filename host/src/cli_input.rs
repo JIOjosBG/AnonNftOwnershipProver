@@ -20,3 +20,13 @@ pub fn prover_inputs() -> Result<(Address, Signature), Box<dyn std::error::Error
 
     Ok((address, signature))
 }
+
+pub fn get_termbin_url() -> Result<String, Box<dyn std::error::Error>> {
+    let stdin = io::stdin();
+    let mut lines = stdin.lock().lines();
+
+    println!("Enter termbin url with proof:");
+    let termbin_url = lines.next().ok_or("No input provided for address")??;
+
+    Ok(termbin_url.trim().to_string())
+}
